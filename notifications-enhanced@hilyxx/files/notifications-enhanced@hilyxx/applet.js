@@ -15,6 +15,10 @@ const Util = imports.misc.util;
 
 const PANEL_EDIT_MODE_KEY = "panel-edit-mode";
 
+const ON = "rgb(246,246,246)";
+const OFF = "rgb(246,97,81)";
+const NEW = "rgb(255,180,0)";
+
 const UUID = "notifications-enhanced@hilyxx";
 Gettext.bindtextdomain(UUID, GLib.get_home_dir() + "/.local/share/locale");
 
@@ -38,6 +42,12 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
         this.settings.bind("keyMute", "keyMute", this._setKeybinding);        
         this.settings.bind("showNotificationCount", "showNotificationCount", this.update_list);
         this.settings.bind("showNotificationSettings", "showNotificationSettings", this._show_settings_action);
+        this.settings.bind("customOnNotifColor", "customOnNotifColor", this.update_list); 
+        this.settings.bind("customOffNotifColor", "customOffNotifColor", this.update_list);
+        this.settings.bind("customNewNotifColor", "customNewNotifColor", this.update_list);
+        this.settings.bind("onIconColor", "onIconColor", this.update_list); 
+        this.settings.bind("offIconColor", "offIconColor", this.update_list);
+        this.settings.bind("newIconColor", "newIconColor", this.update_list);
         this._setKeybinding();
 
         this.notif_settings = new Gio.Settings({ schema_id: "org.cinnamon.desktop.notifications" });
@@ -88,7 +98,7 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
         this._notificationbin = new St.BoxLayout({vertical:true});
         this.button_label_box = new St.BoxLayout();
 
-        // Setup the tray icon.
+        // Setup the tray icon and menu items
         this.menu_label = new PopupMenu.PopupMenuItem(stringify(this.notifications.length));
         this.menu_label.label.add_style_class_name('popup-label-notif');
         this.menu_label.actor.reactive = false;
@@ -145,15 +155,13 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
         this.notificationsSwitch.setToggleState(this.notif_settings.get_boolean("display-notifications"));
         this.menu.addMenuItem(this.notificationsSwitch);
 
-        
         // Notification Settings menu item
         this.item_action = new PopupMenu.PopupMenuItem(_("Notification Settings"));
         this.item_action.connect('activate', Lang.bind(this, function() {
             Util.spawnCommandLine("cinnamon-settings notifications");
         }));
         this.menu.addMenuItem(this.item_action);
-        this.item_action.actor.hide();
-
+        this._show_settings_action();
 
         // Notification scroll
         this.scrollview = new St.ScrollView({ x_fill: true, y_fill: true, y_align: St.Align.START, style_class: "vfade"});
@@ -227,11 +235,16 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
                 this.actor.show();
                 this.clear_action.actor.show();
                 this.menu_label.actor.show();
-                this.item_action.actor.show();
                 this.notDisturb_label.actor.hide();
                 this.noNotif_label.actor.hide();              
                 this.set_applet_tooltip(ngettext("%d notification", "%d notifications", count).format(count));           
                 this.set_applet_label(count.toString());
+                // Custom icon color.
+                if (this.customNewNotifColor) {
+                    this.actor.style = "color: %s".format(this.settings.getValue("newIconColor"));
+                } else {
+                    this.actor.style = "inherit";
+                }
                 // Find max urgency and derive list icon.
                 let max_urgency = -1;
                 for (let i = 0; i < count; i++) {
@@ -262,13 +275,18 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
                 this.set_applet_icon_symbolic_name("empty-notification");
                 this.set_applet_tooltip(_("Notifications"));
                 this.noNotif_label.actor.show();
-                this.item_action.actor.show(); 
                 this.notDisturb_label.actor.hide();
                 this.menu_label.actor.hide();                 
                 this.clear_action.actor.hide();
                 if (!this.showEmptyTray) {
                     this.actor.hide();
                 }
+               // Custom icon color.
+               if (this.customOnNotifColor) {
+                   this.actor.style = "color: %s".format(this.settings.getValue("onIconColor"));
+               } else {
+                   this.actor.style = "inherit";
+               }
             }
 
              // Show "Do not disturb" icon and label
@@ -281,10 +299,12 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
                 if (this.showDisturbIcon) {
                     this.actor.show();
                 }
-            }
-             
-            if (!this.showNotificationSettings) {
-                this.item_action.actor.hide();
+               // Custom icon color.
+               if (this.customOffNotifColor) {
+                   this.actor.style = "color: %s".format(this.settings.getValue("offIconColor"));
+               } else {
+                   this.actor.style = "inherit";
+               }
             }
                     
             if (!this.showNotificationCount) {  // Don't show notification count
@@ -292,8 +312,8 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
             }
             this.menu_label.label.set_text(stringify(count));
             this._notificationbin.queue_relayout();
-        }
-        catch (e) {
+            
+        } catch (e) {
             global.logError(e);
         }
     }
@@ -309,12 +329,22 @@ class CinnamonNotificationsApplet extends Applet.TextIconApplet {
         this.notifications = [];
         this.update_list();
     }
+    
+    _reset_colors() {
+        // Reset colors to default values
+        this.settings.setValue("offIconColor", OFF);
+        this.settings.setValue("onIconColor", ON);
+        this.settings.setValue("newIconColor", NEW);
+        
+        this.update_list();
+    }
 
     _show_settings_action() {  // Show or hide notification settings menu item
         if (this.showNotificationSettings) {
             this.item_action.actor.show();
+        } else {
+            this.item_action.actor.hide();
         }
-        this.update_list();
     }
 
     _show_hide_tray() { // Show or hide the notification tray.
