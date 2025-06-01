@@ -1,69 +1,177 @@
 {
-    "section1": {
-        "type": "section",
-        "description": "Behavior"
-     },
-     "ignoreTransientNotifications": {
-        "type": "switch",
-        "default":true,
-        "description": "Ignore transient notifications",
-        "tooltip" : "Check this to ignore transient notifications."
-    },
-    "section2": {
-        "type": "section",
-        "description": "Display"
-    },
-    "showNotificationCount": {
-        "type": "switch",
-        "default":true,
-        "description": "Show the number of notifications"
-    },
-    "showEmptyTray": {
-        "type": "switch",
-        "default":true,
-        "description": "Show empty tray",
-        "tooltip": "Check this to show the tray even when there are no new notifications."
-    },
-    "showDisturbIcon": {
-        "type": "switch",
-        "default":false,
-        "description": "Show 'Do not disturb' icon even when show empty tray option is disabled",
-        "tooltip": "Check this to show 'Do not disturb' icon on panel even when show empty tray option is disabled."
-    },
-    "showNotificationSettings": {
-        "type": "switch",
-        "default":false,
-        "description": "Show notification settings in the menu"
-    },
-    "section3": {
-        "type": "section",
-        "description": "Keyboard shortcuts"
-    },
-    "keyOpen": {
-        "type": "keybinding",
-        "description": "Show notifications",
-        "default": "<Super>n",
-        "tooltip" : "Set keybinding(s) to show the notification popup menu."
+   "layoutnotificationsenhanced":{
+      "type":"layout",
+      "pages":[
+         "page_settings",
+         "page_icon"
+      ],
+      "page_settings":{
+         "type":"page",
+         "title":"Settings",
+         "sections":[
+            "section1",
+            "section2",
+            "section3",
+            "section4",
+            "section5"
+         ]
+      },
+      "page_icon":{
+         "type":"page",
+         "title":"Icon",
+         "sections":[
+            "section6"
+         ]
+      },
+      "section1":{
+         "type":"section",
+         "title":"Behavior",
+         "keys":[
+            "ignoreTransientNotifications"
+         ]
+      },
+      "section2":{
+         "type":"section",
+         "title":"Display",
+         "keys":[
+            "showNotificationCount",
+            "showEmptyTray",
+            "showDisturbIcon",
+            "showNotificationSettings"
+         ]
+      },
+      "section3":{
+         "type":"section",
+         "title":"Keyboard shortcuts",
+         "keys":[
+            "keyOpen",
+            "keyClear",
+            "keyMute"
+         ]
+      },
+      "section4":{
+         "type":"section",
+         "title":"",
+         "keys":[
+            "btnSystemSettings"
+         ]
+      },
+      "section5":{
+         "type":"section",
+         "title":"",
+         "keys":[
+         ]
+      },
+      "section6":{
+         "type":"section",
+         "title":"Customization",
+         "keys":[
+            "customOnNotifColor",
+            "onIconColor",
+            "customOffNotifColor",
+            "offIconColor",
+            "customNewNotifColor",
+            "newIconColor",
+            "resetColorButton"
+         ]
+      }
    },
-   "keyClear": {
-        "type": "keybinding",
-        "description": "Clear notifications",
-        "default": "<Shift><Super>c",
-        "tooltip" : "Set keybinding(s) to clear all notifications."
+   "ignoreTransientNotifications":{
+      "type":"switch",
+      "default":true,
+      "description":"Ignore transient notifications",
+      "tooltip":"Check this to ignore transient notifications."
    },
-    "keyMute": {
-        "type": "keybinding",
-        "description": "Enable or disable notifications",
-        "default": "<Shift><Super>m",
-        "tooltip": "Set keybinding(s) to enable or disable notifications."
-    },    
-   "section4": {
-        "type": "section",
-        "description": ""
+   "showNotificationCount":{
+      "type":"switch",
+      "default":true,
+      "description":"Show the number of notifications"
    },
-   "btnSystemSettings" : {
-        "type" : "button",
-        "description" : "Open notification settings",
-        "callback": "on_btn_open_system_settings_clicked"
-    }
+   "showEmptyTray":{
+      "type":"switch",
+      "default":true,
+      "description":"Show empty tray",
+      "tooltip":"Check this to show the tray even when there are no new notifications."
+   },
+   "showDisturbIcon":{
+      "type":"switch",
+      "default":false,
+      "description":"Show 'Do not disturb' icon even when show empty tray option is disabled",
+      "tooltip":"Check this to show 'Do not disturb' icon on panel even when show empty tray option is disabled.",
+      "dependency":"!showEmptyTray"
+   },
+   "showNotificationSettings":{
+      "type":"switch",
+      "default":false,
+      "description":"Show notification settings in the menu"
+   },
+   "customOnNotifColor":{
+      "type":"switch",
+      "default":false,
+      "description":"Use a custom icon color when notifications are allowed"
+   },
+   "onIconColor":{
+      "type":"colorchooser",
+      "default":"rgb(246,246,246)",
+      "description":"Set a custom color",
+      "indent":true,
+      "dependency":"customOnNotifColor"
+   },
+   "customOffNotifColor":{
+      "type":"switch",
+      "default":false,
+      "description":"Use a custom icon color when notifications are muted"
+   },
+   "offIconColor":{
+      "type":"colorchooser",
+      "default": "rgb(246,97,81)",
+      "description":"Set a custom color",
+      "indent":true,
+      "dependency":"customOffNotifColor"
+   },
+   "customNewNotifColor":{
+      "type":"switch",
+      "default":false,
+      "description":"Use a custom icon color for incoming notifications"
+   },
+   "newIconColor":{
+      "type":"colorchooser",
+      "default": "rgb(255,180,0)",
+      "description":"Set a custom color",
+      "indent":true,
+      "dependency":"customNewNotifColor"
+   },
+   "resetColorButton":{
+      "type":"button",
+      "description":"Set a default color",
+      "callback":"_reset_colors",
+      "dependencies": [
+         "customOnNotifColor",
+         "customOffNotifColor",
+         "customNewNotifColor"
+      ]
+   },
+   "keyOpen":{
+      "type":"keybinding",
+      "description":"Show notifications",
+      "default":"<Super>n",
+      "tooltip":"Set keybinding(s) to show the notification popup menu."
+   },
+   "keyClear":{
+      "type":"keybinding",
+      "description":"Clear notifications",
+      "default":"<Shift><Super>c",
+      "tooltip":"Set keybinding(s) to clear all notifications."
+   },
+   "keyMute":{
+      "type":"keybinding",
+      "description":"Enable or disable notifications",
+      "default":"<Shift><Super>m",
+      "tooltip":"Set keybinding(s) to enable or disable notifications."
+   },
+   "btnSystemSettings":{
+      "type":"button",
+      "description":"Open notification settings",
+      "callback":"on_btn_open_system_settings_clicked"
+   }
 }
